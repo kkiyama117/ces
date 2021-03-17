@@ -4,7 +4,9 @@ import CopyWebpackPlugin from 'copy-webpack-plugin'
 const config = () => {
     return {
         entry: {
-            content_scripts: path.join(__dirname, 'src', 'background.ts')
+            background: path.join(__dirname, 'src', 'background.js'),
+            index: path.join(__dirname, 'src', 'index.js'),
+            sha1: path.join(__dirname, 'src', 'sha1.js'),
         },
         output: {
             // distディレクトリに吐く
