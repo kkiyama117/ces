@@ -22,13 +22,10 @@ chrome.app.runtime.onLaunched.addListener(function () {
         const server = new http.Server();
         const wsServer = new http.WebSocketServer(server);
         server.listen(port);
+        openServer(wsServer)
+    }
 
-        server.addEventListener('request', function (req) {
-            let url = req.headers.url;
-            req.serveUrl(url);
-            return true;
-        });
-
+    function openServer(wsServer) {
         // A list of connected websockets.
         const connectedSockets = [];
 
@@ -54,4 +51,10 @@ chrome.app.runtime.onLaunched.addListener(function () {
             return true;
         });
     }
+
+    // server.addEventListener('request', function (req) {
+    //     let url = req.headers.url;
+    //     req.serveUrl(url);
+    //     return true;
+    // });
 });
