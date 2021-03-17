@@ -1,60 +1,49 @@
-import http from './http';
+import http from "./http";
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+function log(text) {
+    console.log(text);
+}
+
+function receivedCallback(data) {
+    log(data);
+    return data;
+}
+
+class WSServer {
+    constructor(wsServer, receivedCallback) {
+        wsServer.addEventListener("request", function (req) {
+            const socket = req.accept();
+            socket.addEventListener("message", function (e) {
+                socket.send(receivedCallback(e.data));
+            });
+
+            socket.addEventListener("close", function () {
+                log("close");
+            });
+            return true;
+        });
+    }
+}
 
 chrome.app.runtime.onLaunched.addListener(function () {
-    chrome.app.window.create('index.html', {
+    // WINDOW
+    chrome.app.window.create("index.html", {
         innerBounds: {
             minWidth: 1024,
             minHeight: 768,
         },
     });
 
-// MAIN
-    function $(id) {
-        return document.getElementById(id);
-    }
-
-    function log(text) {
-        console.log(text);
-    }
-
+    // MAIN
     const port = 9999;
     if (http.Server && http.WebSocketServer) {
         const server = new http.Server();
         const wsServer = new http.WebSocketServer(server);
         server.listen(port);
-        openServer(wsServer)
+        const ws = new WSServer(wsServer, receivedCallback);
     }
-
-    function openServer(wsServer) {
-        // A list of connected websockets.
-        const connectedSockets = [];
-
-        wsServer.addEventListener('request', function (req) {
-            log('Client connected');
-            const socket = req.accept();
-            connectedSockets.push(socket);
-            socket.addEventListener('message', function (e) {
-                for (let i = 0; i < connectedSockets.length; i++) {
-                    connectedSockets[i].send(e.data);
-                }
-            });
-
-            socket.addEventListener('close', function () {
-                log('Client disconnected');
-                for (let i = 0; i < connectedSockets.length; i++) {
-                    if (connectedSockets[i] === socket) {
-                        connectedSockets.splice(i, 1);
-                        break;
-                    }
-                }
-            });
-            return true;
-        });
-    }
-
-    // server.addEventListener('request', function (req) {
-    //     let url = req.headers.url;
-    //     req.serveUrl(url);
-    //     return true;
-    // });
 });

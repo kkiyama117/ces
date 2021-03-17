@@ -5,7 +5,7 @@
  * The properties declared here are discussed in the above algorithm document.
  * @constructor
  */
-const Sha1 = function() {
+const Sha1 = function () {
   /**
    * Holds the previous values of accumulated variables a-e in the compress_
    * function.
@@ -47,7 +47,7 @@ const Sha1 = function() {
 /**
  * Resets the internal accumulator.
  */
-Sha1.prototype.reset = function() {
+Sha1.prototype.reset = function () {
   this.chain_[0] = 0x67452301;
   this.chain_[1] = 0xefcdab89;
   this.chain_[2] = 0x98badcfe;
@@ -63,7 +63,7 @@ Sha1.prototype.reset = function() {
  * @return {number} w rotated left by r bits.
  * @private
  */
-Sha1.prototype.rotl_ = function(w, r) {
+Sha1.prototype.rotl_ = function (w, r) {
   return ((w << r) | (w >>> (32 - r))) & 0xffffffff;
 };
 
@@ -72,7 +72,7 @@ Sha1.prototype.rotl_ = function(w, r) {
  * @param {Array} buf containing block to compress.
  * @private
  */
-Sha1.prototype.compress_ = function(buf) {
+Sha1.prototype.compress_ = function (buf) {
   const W = this.W_;
 
   // get 16 big endian words
@@ -134,7 +134,7 @@ Sha1.prototype.compress_ = function(buf) {
  * @param {Array.<number>} bytes to add to digest.
  * @param {number} opt_length is # of bytes to compress.
  */
-Sha1.prototype.update = function(bytes, opt_length) {
+Sha1.prototype.update = function (bytes, opt_length) {
   if (!opt_length) {
     opt_length = bytes.length;
   }
@@ -171,7 +171,7 @@ Sha1.prototype.update = function(bytes, opt_length) {
 /**
  * @return {Array} byte[20] containing finalized hash.
  */
-Sha1.prototype.digest = function() {
+Sha1.prototype.digest = function () {
   const digest = [];
   let totalBits = this.total_ * 8;
 
