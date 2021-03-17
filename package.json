@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "build-ext": "yarn webpack --mode=production",
+    "build-ext-dev": "yarn webpack --mode==development"
+  },
   "devDependencies": {
     "@types/copy-webpack-plugin": "^6.4.0",
     "@types/webpack": "^4.41.26",
