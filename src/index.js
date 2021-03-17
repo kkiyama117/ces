@@ -13,7 +13,6 @@ function log(text) {
 const port = 9999;
 let isServer = false;
 if (http.Server && http.WebSocketServer) {
-  // Listen for HTTP connections.
   const server = new http.Server();
   const wsServer = new http.WebSocketServer(server);
   server.listen(port);
@@ -58,38 +57,3 @@ if (http.Server && http.WebSocketServer) {
     return true;
   });
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-  log(
-      'This is a test of an HTTP and WebSocket server. This application is ' +
-      'serving its own source code on port ' +
-      port +
-      '. Each client ' +
-      'connects to the server on a WebSocket and all messages received on ' +
-      'one WebSocket are echoed to all connected clients - i.e. a chat ' +
-      'server. Enjoy!',
-  );
-  // FIXME: Wait for 1s so that HTTP Server socket is listening...
-  setTimeout(function() {
-    const address = isServer ?
-      'ws://localhost:' + port + '/' :
-      window.location.href.replace('http', 'ws');
-    const ws = new WebSocket(address);
-    ws.addEventListener('open', function() {
-      log('Connected');
-    });
-    ws.addEventListener('close', function() {
-      log('Connection lost');
-      $('input').disabled = true;
-    });
-    ws.addEventListener('message', function(e) {
-      log(e.data);
-    });
-    $('input').addEventListener('keydown', function(e) {
-      if (ws && ws.readyState === 1 && e.keyCode === 13) {
-        ws.send(this.value);
-        this.value = '';
-      }
-    });
-  }, 1e3);
-});
