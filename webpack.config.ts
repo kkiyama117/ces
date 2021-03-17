@@ -5,7 +5,7 @@ const config = () => {
     return {
         entry: {
             background: path.join(__dirname, 'src', 'background.js'),
-            index: path.join(__dirname, 'src', 'index.js'),
+            // index: path.join(__dirname, 'src', 'index.js'),
         },
         output: {
             // distディレクトリに吐く
