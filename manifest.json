@@ -1,0 +1,21 @@
+{
+  "name": "PSW WebSocket Server",
+  "description": "Runs an Http and WebSocket server with a connection to psw.",
+  "version": "0.1.2",
+  "manifest_version": 3,
+  "sockets": {
+    "tcp": {
+      "connect": "*"
+    },
+    "tcpServer": {
+      "listen": "*"
+    }
+  },
+  "app": {
+    "background": {
+      "scripts": [
+        "background.js"
+      ]
+    }
+  }
+}
