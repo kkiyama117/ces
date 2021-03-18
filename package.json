@@ -1,5 +1,7 @@
 {
   "scripts": {
+    "test": "yarn format && yarn build-ext",
+    "format": "yarn prettier -w src",
     "build-ext": "yarn webpack --mode=production",
     "build-ext-dev": "yarn webpack --mode==development"
   },

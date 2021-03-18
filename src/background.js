@@ -1,49 +1,73 @@
 import http from "./http";
 
 function $(id) {
-    return document.getElementById(id);
+  return document.getElementById(id);
 }
 
 function log(text) {
-    console.log(text);
+  console.log(text);
 }
 
-function receivedCallback(data) {
-    log(data);
-    return data;
+class WSManager {
+  constructor() {
+    this.commandId = 0;
+  }
+
+  genHandleMessage(socket) {
+    return function (e) {
+      if (socket !== null) {
+        socket.send(e.data);
+        if (navigator.hid) {
+          navigator.hid.getDevices().then((devices) => {
+            log(devices);
+            socket.send(devices);
+          });
+        }
+      } else {
+        log("socket is not exist!");
+      }
+    };
+  }
+
+  genCloseMessage() {
+    return function () {
+      log("close");
+    };
+  }
 }
 
-class WSServer {
-    constructor(wsServer, receivedCallback) {
-        wsServer.addEventListener("request", function (req) {
-            const socket = req.accept();
-            socket.addEventListener("message", function (e) {
-                socket.send(receivedCallback(e.data));
-            });
+function initWSServer(wsServer, genHandleMessage, genCloseMessage) {
+  wsServer.addEventListener("request", function (req) {
+    const socket = req.accept();
+    socket.addEventListener("message", genHandleMessage(socket));
 
-            socket.addEventListener("close", function () {
-                log("close");
-            });
-            return true;
-        });
-    }
+    socket.addEventListener("close", genCloseMessage());
+    return true;
+  });
 }
 
 chrome.app.runtime.onLaunched.addListener(function () {
-    // WINDOW
-    chrome.app.window.create("index.html", {
-        innerBounds: {
-            minWidth: 1024,
-            minHeight: 768,
-        },
-    });
+  // WINDOW
+  chrome.app.window.create("index.html", {
+    innerBounds: {
+      minWidth: 1024,
+      minHeight: 768,
+    },
+  });
 
-    // MAIN
-    const port = 9999;
-    if (http.Server && http.WebSocketServer) {
-        const server = new http.Server();
-        const wsServer = new http.WebSocketServer(server);
-        server.listen(port);
-        const ws = new WSServer(wsServer, receivedCallback);
-    }
+  // MAIN
+  const port = 9999;
+
+  if (navigator.hid) {
+    console.log(navigator.hid);
+  }
+  if (http.Server && http.WebSocketServer) {
+    // init ws
+    const server = new http.Server();
+    const wsServer = new http.WebSocketServer(server);
+    server.listen(port);
+    // create struct for connection manager
+    const manager = new WSManager();
+    initWSServer(wsServer, manager.genHandleMessage, manager.genCloseMessage);
+  }
 });
