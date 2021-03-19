@@ -2,7 +2,11 @@
   "name": "PSW WebSocket Server",
   "description": "Runs an Http and WebSocket server with a connection to psw.",
   "version": "0.1.2",
+  "minimum_chrome_version": "45.0.2439.3",
   "manifest_version": 3,
+  "permissions": [
+    "hid",
+  ],
   "sockets": {
     "tcp": {
       "connect": "*"

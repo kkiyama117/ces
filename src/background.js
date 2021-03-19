@@ -8,6 +8,51 @@ function log(text) {
   console.log(text);
 }
 
+const PSWDeviceId = {
+  vendorId: 0x291f,
+  productId: 0x0007,
+};
+
+const onDeviceAdded = function (device) {
+  if (device.vendorId === PSWDeviceId.vendorId) {
+    if (device.productId === PSWDeviceId.productId) {
+      connectToDevice(device.deviceId);
+    }
+  }
+};
+
+const onDevicesEnumerated = function (devices) {
+  if (chrome.runtime.lastError) {
+    console.error(
+      "Unable to enumerate devices: " + chrome.runtime.lastError.message
+    );
+    return;
+  }
+
+  for (var device of devices) {
+    onDeviceAdded(device);
+  }
+};
+
+const onDeviceRemoved = function (deviceId) {};
+
+const enumerateDevices = function () {
+  chrome.hid.getDevices({}, onDevicesEnumerated);
+  chrome.hid.onDeviceAdded.addListener(onDeviceAdded);
+  chrome.hid.onDeviceRemoved.addListener(onDeviceRemoved);
+};
+
+let connectionId = null;
+
+const connectToDevice = function (deviceId) {
+  chrome.hid.connect(deviceId, function (connectInfo) {
+    if (!connectInfo) {
+      console.warn("Unable to connect to device.");
+    }
+    connectionId = connectInfo.connectionId;
+  });
+};
+
 class WSManager {
   constructor() {
     this.commandId = 0;
@@ -17,12 +62,6 @@ class WSManager {
     return function (e) {
       if (socket !== null) {
         socket.send(e.data);
-        if (navigator.hid) {
-          navigator.hid.getDevices().then((devices) => {
-            log(devices);
-            socket.send(devices);
-          });
-        }
       } else {
         log("socket is not exist!");
       }
@@ -58,9 +97,6 @@ chrome.app.runtime.onLaunched.addListener(function () {
   // MAIN
   const port = 9999;
 
-  if (navigator.hid) {
-    console.log(navigator.hid);
-  }
   if (http.Server && http.WebSocketServer) {
     // init ws
     const server = new http.Server();
@@ -68,6 +104,7 @@ chrome.app.runtime.onLaunched.addListener(function () {
     server.listen(port);
     // create struct for connection manager
     const manager = new WSManager();
+    enumerateDevices();
     initWSServer(wsServer, manager.genHandleMessage, manager.genCloseMessage);
   }
 });
